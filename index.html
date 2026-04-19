@@ -862,12 +862,14 @@
     position: fixed; inset: 0;
     z-index: 300;
     display: none;
-    align-items: center; justify-content: center;
-    padding: 1.5rem;
+    align-items: flex-start; justify-content: center;
+    padding: 1rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .booking-overlay.open { display: flex; }
   .booking-backdrop {
-    position: absolute; inset: 0;
+    position: fixed; inset: 0;
     background: rgba(10,15,30,0.85);
     backdrop-filter: blur(12px);
   }
@@ -877,9 +879,10 @@
     background: var(--navy-mid);
     border: 1px solid var(--border);
     border-radius: 20px;
-    padding: 2.5rem;
+    padding: 1.5rem;
     box-shadow: 0 40px 100px rgba(0,0,0,0.6);
     animation: modalIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    margin: 1rem auto;
   }
   @keyframes modalIn {
     from { transform: scale(0.92) translateY(20px); opacity: 0; }

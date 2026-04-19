@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrimeFlow — Automação e Inteligência para o seu Negócio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --navy: #0a0f1e;
+    --navy-mid: #0d1528;
+    --navy-light: #111d35;
+    --blue-deep: #1a3a6b;
+    --blue-mid: #1e5fcc;
+    --blue-bright: #3b82f6;
+    --cyan: #38bdf8;
+    --cyan-light: #7dd3fc;
+    --white: #f0f4ff;
+    --white-dim: rgba(240,244,255,0.7);
+    --white-subtle: rgba(240,244,255,0.12);
+    --white-ghost: rgba(240,244,255,0.05);
+    --border: rgba(56,189,248,0.15);
+    --border-soft: rgba(240,244,255,0.06);
+    --grad-blue: linear-gradient(135deg, #1e5fcc 0%, #38bdf8 100%);
+    --grad-text: linear-gradient(120deg, #f0f4ff 30%, #38bdf8 100%);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; font-size: 16px; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.65;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 10px; height: 10px;
+    background: var(--cyan);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    transition: transform 0.12s ease, opacity 0.2s;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(56,189,248,0.4);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9998;
+    transition: transform 0.22s ease, width 0.2s, height 0.2s, opacity 0.2s;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring.expand { width: 56px; height: 56px; opacity: 0.5; }
+
+  /* Noise overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.6;
+  }
+
+  /* ─── NAVIGATION ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 0 5vw;
+    height: 72px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(10,15,30,0.7);
+    backdrop-filter: blur(20px) saturate(1.4);
+    border-bottom: 1px solid var(--border-soft);
+    transition: background 0.3s;
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 12px;
+    text-decoration: none;
+  }
+  .nav-logo-icon {
+    width: 36px; height: 36px;
+  }
+  .nav-logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: -0.01em;
+  }
+  .nav-logo-text span { color: var(--cyan); }
+  .nav-links {
+    display: flex; align-items: center; gap: 2.5rem;
+    list-style: none;
+  }
+  .nav-links a {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: var(--white-dim);
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-cta {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--cyan) !important;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 0.82rem !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase;
+    transition: background 0.2s, border-color 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--white-ghost) !important; border-color: var(--cyan) !important; }
+
+  /* ─── HERO ─── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 120px 5vw 80px;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  /* Radial glow behind hero */
+  .hero-glow {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -55%);
+    width: 900px; height: 600px;
+    background: radial-gradient(ellipse at center, rgba(30,95,204,0.18) 0%, rgba(56,189,248,0.06) 50%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Geometric grid lines */
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(56,189,248,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56,189,248,0.04) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse 70% 70% at center, black, transparent);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    border: 1px solid rgba(56,189,248,0.22);
+    padding: 7px 18px;
+    border-radius: 100px;
+    margin-bottom: 2.4rem;
+    background: rgba(56,189,248,0.06);
+    animation: fadeUp 0.8s ease both;
+  }
+  .eyebrow-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--cyan);
+    animation: pulse 2s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .hero-headline {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    max-width: 900px;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+  .hero-headline .grad {
+    background: var(--grad-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    margin-top: 1.8rem;
+    max-width: 560px;
+    font-size: 1.05rem;
+    color: var(--white-dim);
+    font-weight: 300;
+    line-height: 1.7;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .hero-actions {
+    margin-top: 3rem;
+    display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--grad-blue);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    padding: 14px 32px;
+    border-radius: 8px;
+    border: none;
+    cursor: none;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 32px rgba(56,189,248,0.18);
+  }
+  .btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 40px rgba(56,189,248,0.3);
+  }
+
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent;
+    color: var(--white-dim);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 400;
+    padding: 14px 28px;
+    border-radius: 8px;
+    border: 1px solid var(--border-soft);
+    cursor: none;
+    text-decoration: none;
+    transition: color 0.2s, border-color 0.2s, transform 0.2s;
+  }
+  .btn-ghost:hover { color: var(--white); border-color: var(--border); transform: translateY(-2px); }
+
+  /* Inline chat input in hero */
+  .hero-input-bar {
+    margin-top: 3.5rem;
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    background: var(--navy-light);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    animation: fadeUp 0.8s 0.4s ease both;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .hero-input-bar:focus-within {
+    border-color: rgba(56,189,248,0.4);
+    box-shadow: 0 0 0 4px rgba(56,189,248,0.07);
+  }
+  .hero-input-bar input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 16px 20px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 300;
+  }
+  .hero-input-bar input::placeholder { color: rgba(240,244,255,0.3); }
+  .hero-input-bar button {
+    background: var(--grad-blue);
+    border: none;
+    padding: 0 22px;
+    cursor: none;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+  }
+  .hero-input-bar button:hover { opacity: 0.85; }
+
+  .hero-disclaimer {
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: rgba(240,244,255,0.25);
+    animation: fadeUp 0.8s 0.5s ease both;
+  }
+
+  /* Scroll indicator */
+  .scroll-hint {
+    position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    animation: fadeUp 1s 1s ease both;
+  }
+  .scroll-hint-line {
+    width: 1px; height: 48px;
+    background: linear-gradient(to bottom, transparent, var(--cyan), transparent);
+    animation: scrollPulse 2s ease infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
+    50% { opacity: 1; transform: scaleY(1); }
+  }
+  .scroll-hint-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(240,244,255,0.25);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── LOGO MARQUEE ─── */
+  .marquee-section {
+    padding: 4rem 0;
+    border-top: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--border-soft);
+    overflow: hidden;
+    position: relative;
+  }
+  .marquee-label {
+    text-align: center;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(240,244,255,0.25);
+    margin-bottom: 2rem;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 5rem;
+    width: max-content;
+    animation: marquee 24s linear infinite;
+  }
+  .marquee-item {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: rgba(240,244,255,0.18);
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ─── SECTION COMMONS ─── */
+  section { position: relative; z-index: 1; }
+  .section-inner { max-width: 1100px; margin: 0 auto; padding: 0 5vw; }
+
+  .section-tag {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 1.2rem;
+  }
+
+  .section-headline {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.9rem, 4vw, 3rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    max-width: 600px;
+  }
+
+  .section-body {
+    margin-top: 1.2rem;
+    color: var(--white-dim);
+    font-size: 1rem;
+    line-height: 1.72;
+    max-width: 520px;
+  }
+
+  /* ─── HOW IT WORKS ─── */
+  .how-section { padding: 120px 0; }
+
+  .how-grid {
+    margin-top: 5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px;
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .how-card {
+    padding: 3rem;
+    background: var(--navy-mid);
+    position: relative;
+    transition: background 0.3s;
+  }
+  .how-card:hover { background: var(--navy-light); }
+  .how-card-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 4rem;
+    font-weight: 800;
+    line-height: 1;
+    background: var(--grad-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    opacity: 0.15;
+    margin-bottom: 1.5rem;
+  }
+  .how-card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 0.8rem;
+  }
+  .how-card-text { font-size: 0.9rem; color: var(--white-dim); line-height: 1.7; }
+
+  /* ─── SERVICES ─── */
+  .services-section { padding: 120px 0; background: var(--navy-mid); }
+
+  .services-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    gap: 2rem; flex-wrap: wrap;
+    margin-bottom: 4rem;
+  }
+
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border-soft);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .service-card {
+    background: var(--navy-mid);
+    padding: 2.8rem;
+    transition: background 0.3s;
+    position: relative;
+  }
+  .service-card:hover { background: var(--navy-light); }
+
+  .service-icon {
+    width: 44px; height: 44px;
+    color: var(--cyan);
+    margin-bottom: 1.6rem;
+    opacity: 0.8;
+  }
+
+  .service-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+    letter-spacing: -0.01em;
+  }
+
+  .service-text { font-size: 0.88rem; color: var(--white-dim); line-height: 1.7; }
+
+  /* ─── ABOUT / DIFFERENTIALS ─── */
+  .about-section { padding: 120px 0; }
+  .about-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+
+  .about-visual {
+    position: relative;
+  }
+  .about-logo-frame {
+    width: 100%;
+    aspect-ratio: 1;
+    max-width: 400px;
+    background: var(--navy-light);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .about-logo-frame::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(56,189,248,0.08) 0%, transparent 70%);
+  }
+  .about-logo-frame svg {
+    width: 60%;
+    filter: drop-shadow(0 0 24px rgba(56,189,248,0.3));
+  }
+  .about-ring {
+    position: absolute;
+    border: 1px solid rgba(56,189,248,0.08);
+    border-radius: 50%;
+    animation: rotate 16s linear infinite;
+  }
+  .about-ring-1 { width: 110%; height: 110%; top: -5%; left: -5%; }
+  .about-ring-2 { width: 130%; height: 130%; top: -15%; left: -15%; animation-duration: 24s; animation-direction: reverse; }
+  @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .stat-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border-soft);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 3rem;
+  }
+  .stat-item {
+    background: var(--navy-mid);
+    padding: 1.8rem;
+  }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: var(--grad-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+  .stat-label { font-size: 0.82rem; color: var(--white-dim); }
+
+  /* ─── TESTIMONIALS ─── */
+  .testimonials-section { padding: 120px 0; background: var(--navy-mid); }
+
+  .testimonials-grid {
+    margin-top: 4rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border-soft);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .testimonial-card {
+    background: var(--navy-mid);
+    padding: 2.4rem;
+    transition: background 0.3s;
+  }
+  .testimonial-card:hover { background: var(--navy-light); }
+  .testimonial-text {
+    font-size: 0.92rem;
+    color: var(--white-dim);
+    line-height: 1.75;
+    margin-bottom: 2rem;
+    font-style: italic;
+  }
+  .testimonial-author { display: flex; align-items: center; gap: 12px; }
+  .testimonial-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--grad-blue);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .testimonial-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .testimonial-role { font-size: 0.78rem; color: var(--white-dim); }
+
+  /* ─── CTA SECTION ─── */
+  .cta-section {
+    padding: 120px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px; height: 400px;
+    background: radial-gradient(ellipse at center, rgba(30,95,204,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-headline {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 4.5vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    max-width: 780px;
+    margin: 0 auto 1.5rem;
+  }
+  .cta-sub {
+    font-size: 1rem;
+    color: var(--white-dim);
+    max-width: 480px;
+    margin: 0 auto 3rem;
+    line-height: 1.7;
+  }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--border-soft);
+    padding: 3.5rem 5vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  .footer-copy {
+    font-size: 0.8rem;
+    color: rgba(240,244,255,0.25);
+  }
+  .footer-links {
+    display: flex; gap: 2rem;
+    list-style: none;
+  }
+  .footer-links a {
+    font-size: 0.8rem;
+    color: rgba(240,244,255,0.3);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--white-dim); }
+
+  /* ─── CHAT OVERLAY ─── */
+  .chat-overlay {
+    position: fixed; inset: 0;
+    z-index: 200;
+    display: none;
+    align-items: flex-end; justify-content: flex-end;
+    padding: 2rem;
+    pointer-events: none;
+  }
+  .chat-overlay.open { display: flex; pointer-events: all; }
+
+  .chat-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(10,15,30,0.6);
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .chat-overlay.open .chat-backdrop { opacity: 1; }
+
+  .chat-window {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 480px;
+    height: 78vh; max-height: 680px;
+    background: var(--navy-mid);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(56,189,248,0.08);
+    transform: translateY(32px) scale(0.97);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+  }
+  .chat-overlay.open .chat-window {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  .chat-header {
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--border-soft);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--navy-light);
+    flex-shrink: 0;
+  }
+  .chat-header-info { display: flex; align-items: center; gap: 12px; }
+  .chat-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e5fcc, #38bdf8);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .chat-avatar svg { width: 20px; height: 20px; color: #fff; }
+  .chat-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .chat-status {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.72rem;
+    color: rgba(240,244,255,0.45);
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    animation: pulse 2s infinite;
+  }
+  .chat-close {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--border-soft);
+    color: var(--white-dim);
+    cursor: none;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .chat-close:hover { background: var(--white-ghost); }
+
+  .chat-messages {
+    flex: 1; overflow-y: auto;
+    padding: 1.5rem;
+    display: flex; flex-direction: column; gap: 1rem;
+    scroll-behavior: smooth;
+  }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-track { background: transparent; }
+  .chat-messages::-webkit-scrollbar-thumb { background: rgba(56,189,248,0.2); border-radius: 4px; }
+
+  .msg {
+    max-width: 85%;
+    animation: msgIn 0.3s ease both;
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .msg-user { align-self: flex-end; }
+  .msg-bot { align-self: flex-start; }
+
+  .msg-bubble {
+    padding: 0.85rem 1.1rem;
+    border-radius: 14px;
+    font-size: 0.88rem;
+    line-height: 1.65;
+  }
+  .msg-user .msg-bubble {
+    background: linear-gradient(135deg, #1e5fcc, #2563eb);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  .msg-bot .msg-bubble {
+    background: var(--navy-light);
+    color: var(--white);
+    border: 1px solid var(--border-soft);
+    border-bottom-left-radius: 4px;
+  }
+  .msg-time {
+    font-size: 0.68rem;
+    color: rgba(240,244,255,0.25);
+    margin-top: 4px;
+    padding: 0 4px;
+  }
+  .msg-user .msg-time { text-align: right; }
+
+  /* Typing indicator */
+  .typing-indicator {
+    align-self: flex-start;
+    display: none;
+  }
+  .typing-indicator.active { display: flex; }
+  .typing-bubble {
+    background: var(--navy-light);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    border-bottom-left-radius: 4px;
+    padding: 0.85rem 1.1rem;
+    display: flex; gap: 5px; align-items: center;
+  }
+  .typing-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--cyan);
+    animation: typingDot 1.4s ease infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingDot {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-5px); opacity: 1; }
+  }
+
+  /* Quick replies */
+  .quick-replies {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    padding: 0 1.5rem 1rem;
+    flex-shrink: 0;
+  }
+  .quick-reply {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--cyan);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    padding: 6px 14px;
+    border-radius: 100px;
+    cursor: none;
+    transition: background 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+  .quick-reply:hover { background: rgba(56,189,248,0.08); border-color: var(--cyan); }
+
+  .chat-input-area {
+    padding: 1rem 1.2rem;
+    border-top: 1px solid var(--border-soft);
+    display: flex; gap: 10px; align-items: flex-end;
+    flex-shrink: 0;
+    background: var(--navy-mid);
+  }
+  .chat-input {
+    flex: 1;
+    background: var(--navy-light);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 300;
+    padding: 11px 15px;
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s;
+    min-height: 44px;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+  .chat-input:focus { border-color: rgba(56,189,248,0.35); }
+  .chat-input::placeholder { color: rgba(240,244,255,0.25); }
+  .chat-send {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    background: var(--grad-blue);
+    border: none;
+    cursor: none;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+  }
+  .chat-send:hover { opacity: 0.85; }
+  .chat-send svg { width: 18px; height: 18px; }
+
+  /* ─── BOOKING MODAL ─── */
+  .booking-overlay {
+    position: fixed; inset: 0;
+    z-index: 300;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 1.5rem;
+  }
+  .booking-overlay.open { display: flex; }
+  .booking-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(10,15,30,0.85);
+    backdrop-filter: blur(12px);
+  }
+  .booking-modal {
+    position: relative; z-index: 1;
+    width: 100%; max-width: 520px;
+    background: var(--navy-mid);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+    animation: modalIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  @keyframes modalIn {
+    from { transform: scale(0.92) translateY(20px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .modal-close {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid var(--border-soft);
+    color: var(--white-dim);
+    cursor: none;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .modal-close:hover { background: var(--white-ghost); }
+
+  .form-group { margin-bottom: 1.2rem; }
+  .form-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(240,244,255,0.5);
+    margin-bottom: 0.5rem;
+  }
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    background: var(--navy-light);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 300;
+    padding: 12px 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: rgba(56,189,248,0.4);
+  }
+  .form-select { appearance: none; cursor: none; }
+  .form-textarea { resize: vertical; min-height: 90px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .form-submit {
+    width: 100%;
+    background: var(--grad-blue);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 14px;
+    cursor: none;
+    margin-top: 0.5rem;
+    transition: opacity 0.2s, transform 0.2s;
+    box-shadow: 0 0 24px rgba(56,189,248,0.18);
+  }
+  .form-submit:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  .form-success {
+    display: none;
+    text-align: center;
+    padding: 2rem 0;
+  }
+  .form-success.show { display: block; }
+  .success-icon {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.3);
+    margin: 0 auto 1.5rem;
+    display: flex; align-items: center; justify-content: center;
+    color: #22c55e;
+  }
+  .success-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+  }
+  .success-text { font-size: 0.9rem; color: var(--white-dim); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .how-grid { grid-template-columns: 1fr; }
+    .services-grid { grid-template-columns: 1fr 1fr; }
+    .about-layout { grid-template-columns: 1fr; }
+    .about-visual { display: none; }
+    .testimonials-grid { grid-template-columns: 1fr; }
+    .services-header { flex-direction: column; align-items: flex-start; }
+    .nav-links { display: none; }
+    .chat-overlay { padding: 0; align-items: flex-end; }
+    .chat-window { max-width: 100%; border-radius: 20px 20px 0 0; max-height: 90vh; }
+  }
+  @media (max-width: 600px) {
+    .services-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .stat-row { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* Intersection observer fade-in */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- ─── NAVIGATION ─── -->
+<nav>
+  <a href="#" class="nav-logo">
+    <svg class="nav-logo-icon" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="100" cy="100" r="90" stroke="url(#ng1)" stroke-width="8" fill="none"/>
+      <circle cx="100" cy="100" r="74" stroke="url(#ng2)" stroke-width="3" fill="none" opacity="0.4"/>
+      <path d="M100 30 L100 80" stroke="url(#ng3)" stroke-width="6" stroke-linecap="round"/>
+      <path d="M100 120 L100 170" stroke="url(#ng3)" stroke-width="6" stroke-linecap="round"/>
+      <path d="M40 100 L88 100" stroke="url(#ng3)" stroke-width="6" stroke-linecap="round"/>
+      <path d="M112 100 L160 100" stroke="url(#ng3)" stroke-width="6" stroke-linecap="round"/>
+      <path d="M88 80 Q88 100 100 100 Q112 100 112 80" stroke="url(#ng3)" stroke-width="6" stroke-linecap="round" fill="none"/>
+      <path d="M88 120 Q88 100 100 100 Q112 100 112 120" stroke="url(#ng3)" stroke-width="6" stroke-linecap="round" fill="none"/>
+      <circle cx="100" cy="30" r="7" fill="url(#ng3)"/>
+      <circle cx="100" cy="170" r="7" fill="url(#ng3)"/>
+      <circle cx="40" cy="100" r="7" fill="url(#ng3)"/>
+      <circle cx="160" cy="100" r="7" fill="url(#ng3)"/>
+      <defs>
+        <linearGradient id="ng1" x1="10" y1="10" x2="190" y2="190" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#1e5fcc"/><stop offset="1" stop-color="#38bdf8"/>
+        </linearGradient>
+        <linearGradient id="ng2" x1="10" y1="10" x2="190" y2="190" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#1e5fcc"/><stop offset="1" stop-color="#38bdf8"/>
+        </linearGradient>
+        <linearGradient id="ng3" x1="30" y1="30" x2="170" y2="170" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#60a5fa"/><stop offset="1" stop-color="#38bdf8"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <span class="nav-logo-text">Prime<span>Flow</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#como-funciona">Como funciona</a></li>
+    <li><a href="#servicos">Servicos</a></li>
+    <li><a href="#sobre">Sobre</a></li>
+    <li><a href="#" class="nav-cta" onclick="openChat(); return false;">Falar connosco</a></li>
+  </ul>
+</nav>
+
+<!-- ─── HERO ─── -->
+<section class="hero" id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+
+  <div class="hero-eyebrow">
+    <span class="eyebrow-dot"></span>
+    Automacao Inteligente de Negocios
+  </div>
+
+  <h1 class="hero-headline">
+    Processos que <span class="grad">fluem.</span><br>Resultados que ficam.
+  </h1>
+
+  <p class="hero-sub">
+    A PrimeFlow combina automacao avancada com atendimento personalizado para transformar como o seu negocio opera — com precisao e sem fricao.
+  </p>
+
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="openChat()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      Falar com um Especialista
+    </button>
+    <a href="#como-funciona" class="btn-ghost">
+      Ver como funciona
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+    </a>
+  </div>
+
+  <div class="hero-input-bar">
+    <input type="text" id="heroInput" placeholder="O que pretende automatizar no seu negocio?" onkeydown="heroInputSend(event)">
+    <button onclick="heroInputSubmit()">Iniciar conversa</button>
+  </div>
+  <p class="hero-disclaimer">Resposta imediata — sem compromisso.</p>
+
+  <div class="scroll-hint">
+    <div class="scroll-hint-line"></div>
+    <span class="scroll-hint-label">Explorar</span>
+  </div>
+</section>
+
+<!-- ─── MARQUEE ─── -->
+<div class="marquee-section">
+  <p class="marquee-label">Ferramentas e plataformas integradas</p>
+  <div class="marquee-track">
+    <span class="marquee-item">Make</span>
+    <span class="marquee-item">Zapier</span>
+    <span class="marquee-item">N8N</span>
+    <span class="marquee-item">Notion</span>
+    <span class="marquee-item">HubSpot</span>
+    <span class="marquee-item">Pipedrive</span>
+    <span class="marquee-item">WhatsApp</span>
+    <span class="marquee-item">Shopify</span>
+    <span class="marquee-item">WordPress</span>
+    <span class="marquee-item">Google Workspace</span>
+    <span class="marquee-item">Slack</span>
+    <span class="marquee-item">Airtable</span>
+    <!-- Repeat for seamless loop -->
+    <span class="marquee-item">Make</span>
+    <span class="marquee-item">Zapier</span>
+    <span class="marquee-item">N8N</span>
+    <span class="marquee-item">Notion</span>
+    <span class="marquee-item">HubSpot</span>
+    <span class="marquee-item">Pipedrive</span>
+    <span class="marquee-item">WhatsApp</span>
+    <span class="marquee-item">Shopify</span>
+    <span class="marquee-item">WordPress</span>
+    <span class="marquee-item">Google Workspace</span>
+    <span class="marquee-item">Slack</span>
+    <span class="marquee-item">Airtable</span>
+  </div>
+</div>
+
+<!-- ─── HOW IT WORKS ─── -->
+<section class="how-section" id="como-funciona">
+  <div class="section-inner">
+    <div class="reveal">
+      <span class="section-tag">Metodologia</span>
+      <h2 class="section-headline">Do diagnstico ao resultado, sem complexidade</h2>
+      <p class="section-body">Um processo estruturado, construido para eliminar o atrito e entregar valor desde o primeiro dia.</p>
+    </div>
+
+    <div class="how-grid reveal">
+      <div class="how-card">
+        <div class="how-card-num">01</div>
+        <h3 class="how-card-title">Diagnostico</h3>
+        <p class="how-card-text">Analisamos o seu negocio, identificamos os pontos de friccao e mapeamos as oportunidades de automacao com maior impacto.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-card-num">02</div>
+        <h3 class="how-card-title">Estrategia</h3>
+        <p class="how-card-text">Definimos juntos as prioridades, as ferramentas mais adequadas e o plano de implementacao com prazos realistas.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-card-num">03</div>
+        <h3 class="how-card-title">Implementacao</h3>
+        <p class="how-card-text">Construimos e integramos as solucoes de automacao, com testes rigorosos antes de qualquer ativacao.</p>
+      </div>
+      <div class="how-card">
+        <div class="how-card-num">04</div>
+        <h3 class="how-card-title">Acompanhamento</h3>
+        <p class="how-card-text">Monitorizamos os resultados, ajustamos conforme necessario e garantimos que as automacoes continuam a trabalhar por si.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SERVICES ─── -->
+<section class="services-section" id="servicos">
+  <div class="section-inner">
+    <div class="services-header reveal">
+      <div>
+        <span class="section-tag">O que fazemos</span>
+        <h2 class="section-headline">Solucoes desenhadas para escalar</h2>
+      </div>
+      <p style="max-width: 320px; color: var(--white-dim); font-size: 0.92rem; line-height: 1.7;">Cada projeto e construido de forma personalizada, com foco em resultados mensuravei.</p>
+    </div>
+
+    <div class="services-grid reveal">
+      <div class="service-card">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        <h3 class="service-title">Automacao de Processos</h3>
+        <p class="service-text">Eliminamos tarefas manuais e repetitivas atraves de fluxos automatizados que integram as ferramentas que ja utiliza.</p>
+      </div>
+      <div class="service-card">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle><path d="M19.07 4.93A10 10 0 0 0 4.93 19.07M18 2L22 6M2 18l4 4M22 18l-4 4M2 6l4-4"></path>
+        </svg>
+        <h3 class="service-title">Agentes de Inteligencia Artificial</h3>
+        <p class="service-text">Implementamos agentes de IA treinados para o seu negocio — para atendimento, qualificacao de leads e suporte ao cliente.</p>
+      </div>
+      <div class="service-card">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <h3 class="service-title">CRM e Pipeline de Vendas</h3>
+        <p class="service-text">Configuramos e automatizamos o seu CRM para que a equipa comercial se foque no que importa: vender.</p>
+      </div>
+      <div class="service-card">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+        <h3 class="service-title">Dashboards e Relatorios</h3>
+        <p class="service-text">Criamos paineis de controlo com dados em tempo real para que as decisoes sejam sempre informadas.</p>
+      </div>
+      <div class="service-card">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline>
+        </svg>
+        <h3 class="service-title">Marketing Automatizado</h3>
+        <p class="service-text">Sequencias de email, nurturing e campanhas que funcionam de forma autonoma — com personalizacao real.</p>
+      </div>
+      <div class="service-card">
+        <svg class="service-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        <h3 class="service-title">Integracao de Plataformas</h3>
+        <p class="service-text">Conectamos os sistemas que utiliza para que a informacao flua entre eles sem intervencao manual.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ABOUT ─── -->
+<section class="about-section" id="sobre">
+  <div class="section-inner">
+    <div class="about-layout">
+      <div class="about-visual reveal">
+        <div class="about-logo-frame">
+          <div class="about-ring about-ring-1"></div>
+          <div class="about-ring about-ring-2"></div>
+          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="90" stroke="url(#av1)" stroke-width="8" fill="none"/>
+            <circle cx="100" cy="100" r="74" stroke="url(#av2)" stroke-width="3" fill="none" opacity="0.4"/>
+            <path d="M100 30 L100 80" stroke="url(#av3)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M100 120 L100 170" stroke="url(#av3)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M40 100 L88 100" stroke="url(#av3)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M112 100 L160 100" stroke="url(#av3)" stroke-width="6" stroke-linecap="round"/>
+            <path d="M88 80 Q88 100 100 100 Q112 100 112 80" stroke="url(#av3)" stroke-width="6" stroke-linecap="round" fill="none"/>
+            <path d="M88 120 Q88 100 100 100 Q112 100 112 120" stroke="url(#av3)" stroke-width="6" stroke-linecap="round" fill="none"/>
+            <circle cx="100" cy="30" r="7" fill="url(#av3)"/>
+            <circle cx="100" cy="170" r="7" fill="url(#av3)"/>
+            <circle cx="40" cy="100" r="7" fill="url(#av3)"/>
+            <circle cx="160" cy="100" r="7" fill="url(#av3)"/>
+            <defs>
+              <linearGradient id="av1" x1="10" y1="10" x2="190" y2="190" gradientUnits="userSpaceOnUse"><stop stop-color="#1e5fcc"/><stop offset="1" stop-color="#38bdf8"/></linearGradient>
+              <linearGradient id="av2" x1="10" y1="10" x2="190" y2="190" gradientUnits="userSpaceOnUse"><stop stop-color="#1e5fcc"/><stop offset="1" stop-color="#38bdf8"/></linearGradient>
+              <linearGradient id="av3" x1="30" y1="30" x2="170" y2="170" gradientUnits="userSpaceOnUse"><stop stop-color="#60a5fa"/><stop offset="1" stop-color="#38bdf8"/></linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <div class="stat-row">
+          <div class="stat-item">
+            <div class="stat-num">+120</div>
+            <div class="stat-label">Projetos entregues</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">94%</div>
+            <div class="stat-label">Taxa de retencao</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">3x</div>
+            <div class="stat-label">Reducao de tempo manual</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">48h</div>
+            <div class="stat-label">Primeiro resultado</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal reveal-delay-1">
+        <span class="section-tag">Sobre a PrimeFlow</span>
+        <h2 class="section-headline">Construimos sistemas que trabalham por si</h2>
+        <p class="section-body">
+          A PrimeFlow nasceu da convicao de que as pequenas e medias empresas merecem o mesmo nivel de sofisticacao operacional das grandes corporacoes — sem a complexidade.
+        </p>
+        <p class="section-body" style="margin-top: 1rem;">
+          Trabalhamos de forma proxima com cada cliente, entendendo o negocio antes de propor qualquer solucao. O resultado e automacao que realmente faz sentido — e que continua a funcionar ao longo do tempo.
+        </p>
+        <div style="margin-top: 2.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+          <button class="btn-primary" onclick="openBooking()">Agendar Reuniao</button>
+          <button class="btn-ghost" onclick="openChat()">Fazer uma pergunta</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TESTIMONIALS ─── -->
+<section class="testimonials-section">
+  <div class="section-inner">
+    <div class="reveal">
+      <span class="section-tag">Resultados reais</span>
+      <h2 class="section-headline">O que dizem quem ja trabalhou connosco</h2>
+    </div>
+    <div class="testimonials-grid reveal">
+      <div class="testimonial-card">
+        <p class="testimonial-text">"Reduziram o tempo que a nossa equipa gastava em tarefas administrativas em mais de 60%. O impacto foi imediato e continua a crescer."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">MC</div>
+          <div>
+            <div class="testimonial-name">Miguel Cardoso</div>
+            <div class="testimonial-role">CEO, Distributora Atlântica</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-text">"O agente de IA que instalaram no nosso site converteu mais em dois meses do que a equipa comercial inteira no trimestre anterior."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">SR</div>
+          <div>
+            <div class="testimonial-name">Sara Rodrigues</div>
+            <div class="testimonial-role">Diretora Comercial, HealthPlus</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p class="testimonial-text">"Finalmente temos visibilidade total do que acontece no negocio. Os dashboards que criaram sao a primeira coisa que vejo de manha."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">JF</div>
+          <div>
+            <div class="testimonial-name">Joao Ferreira</div>
+            <div class="testimonial-role">Fundador, Construtech LDA</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ─── -->
+<section class="cta-section">
+  <div class="section-inner" style="position: relative; z-index: 1;">
+    <div class="reveal" style="text-align: center;">
+      <h2 class="cta-headline">Pronto para trabalhar de forma mais inteligente?</h2>
+      <p class="cta-sub">Uma conversa de 20 minutos e suficiente para perceber onde a automacao pode mudar o seu negocio.</p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <button class="btn-primary" onclick="openBooking()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          Agendar Reuniao Gratuita
+        </button>
+        <button class="btn-ghost" onclick="openChat()">Falar com a IA primeiro</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─── -->
+<footer>
+  <span class="footer-copy">© 2025 PrimeFlow. Todos os direitos reservados.</span>
+  <ul class="footer-links">
+    <li><a href="#" onclick="openChat(); return false;">Contacto</a></li>
+    <li><a href="#como-funciona">Como funciona</a></li>
+    <li><a href="#servicos">Servicos</a></li>
+  </ul>
+</footer>
+
+<!-- ─── CHAT OVERLAY ─── -->
+<div class="chat-overlay" id="chatOverlay">
+  <div class="chat-backdrop" onclick="closeChat()"></div>
+  <div class="chat-window">
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <div class="chat-avatar">
+          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="90" stroke="white" stroke-width="10" fill="none"/>
+            <path d="M100 30 L100 80" stroke="white" stroke-width="8" stroke-linecap="round"/>
+            <path d="M100 120 L100 170" stroke="white" stroke-width="8" stroke-linecap="round"/>
+            <path d="M40 100 L88 100" stroke="white" stroke-width="8" stroke-linecap="round"/>
+            <path d="M112 100 L160 100" stroke="white" stroke-width="8" stroke-linecap="round"/>
+            <path d="M88 80 Q88 100 100 100 Q112 100 112 80" stroke="white" stroke-width="8" stroke-linecap="round" fill="none"/>
+            <path d="M88 120 Q88 100 100 100 Q112 100 112 120" stroke="white" stroke-width="8" stroke-linecap="round" fill="none"/>
+            <circle cx="100" cy="30" r="8" fill="white"/>
+            <circle cx="100" cy="170" r="8" fill="white"/>
+            <circle cx="40" cy="100" r="8" fill="white"/>
+            <circle cx="160" cy="100" r="8" fill="white"/>
+          </svg>
+        </div>
+        <div>
+          <div class="chat-name">PrimeFlow — Assistente</div>
+          <div class="chat-status"><span class="status-dot"></span>Disponivel agora</div>
+        </div>
+      </div>
+      <button class="chat-close" onclick="closeChat()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <!-- Messages appended here -->
+    </div>
+
+    <div class="typing-indicator" id="typingIndicator">
+      <div class="typing-bubble">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>
+
+    <div class="quick-replies" id="quickReplies" style="display:none;">
+      <button class="quick-reply" onclick="sendQuickReply(this.textContent)">O que e a PrimeFlow?</button>
+      <button class="quick-reply" onclick="sendQuickReply(this.textContent)">Quero automatizar o meu negocio</button>
+      <button class="quick-reply" onclick="sendQuickReply(this.textContent)">Quanto custa?</button>
+      <button class="quick-reply" onclick="sendQuickReply(this.textContent)">Agendar reuniao</button>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea class="chat-input" id="chatInput" placeholder="Escreva a sua mensagem..." rows="1" onkeydown="chatKeyDown(event)" oninput="autoResize(this)"></textarea>
+      <button class="chat-send" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── BOOKING MODAL ─── -->
+<div class="booking-overlay" id="bookingOverlay">
+  <div class="booking-backdrop" onclick="closeBooking()"></div>
+  <div class="booking-modal">
+    <div class="modal-header">
+      <h2 class="modal-title">Agendar Reuniao</h2>
+      <button class="modal-close" onclick="closeBooking()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+
+    <div id="bookingForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nome</label>
+          <input type="text" class="form-input" id="bookName" placeholder="O seu nome">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Empresa</label>
+          <input type="text" class="form-input" id="bookCompany" placeholder="Nome da empresa">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="bookEmail" placeholder="email@empresa.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Telefone</label>
+        <input type="tel" class="form-input" id="bookPhone" placeholder="+351 9xx xxx xxx">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Data preferida</label>
+          <input type="date" class="form-input" id="bookDate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hora</label>
+          <select class="form-select form-input" id="bookTime">
+            <option value="">Selecionar hora</option>
+            <option>09:00</option>
+            <option>10:00</option>
+            <option>11:00</option>
+            <option>14:00</option>
+            <option>15:00</option>
+            <option>16:00</option>
+            <option>17:00</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">O que pretende discutir?</label>
+        <textarea class="form-textarea form-input" id="bookMessage" placeholder="Descreva brevemente o seu negocio e o que pretende automatizar..."></textarea>
+      </div>
+      <button class="form-submit" onclick="submitBooking()">Confirmar Agendamento</button>
+    </div>
+
+    <div class="form-success" id="formSuccess">
+      <div class="success-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </div>
+      <h3 class="success-title">Reuniao solicitada</h3>
+      <p class="success-text">Recebemos o seu pedido e entraremos em contacto nas proximas horas para confirmar a data e hora.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── CURSOR ───
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+    ring.style.left = e.clientX + 'px';
+    ring.style.top = e.clientY + 'px';
+  });
+  document.querySelectorAll('a, button, input, textarea, select').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('expand'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('expand'));
+  });
+
+  // ─── SCROLL REVEAL ───
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ─── CHAT ───
+  const SYSTEM = `Voce e o assistente virtual da PrimeFlow, uma empresa especializada em automacao de processos e inteligencia artificial para negocios.
+
+Personalidade e tom:
+- Profissional, acolhedor e humano. Nunca robotico ou frio.
+- Direto e claro, sem ser seco. Respostas concisas mas completas.
+- Nunca use emojis, nunca use listas com bullets excessivos.
+- Escreva sempre em Portugues europeu (de Portugal).
+
+Objetivo principal:
+Ajudar o visitante a entender como a PrimeFlow pode ajudar o seu negocio — e, de forma natural, conduzi-lo a agendar uma reuniao.
+
+Abordagem:
+1. Comeca por perceber o contexto e as necessidades do visitante.
+2. Ouve antes de propor. Faz perguntas abertas e pertinentes.
+3. So depois de entender o que o cliente precisa e que sugeres um agendamento — de forma suave, nunca forcada.
+4. Se o cliente ja mostrar interesse em agendar, fornece um link ou diz para clicar no botao de agendamento.
+
+Sobre a PrimeFlow:
+- Especializada em automacao com Make, Zapier, N8N, agentes de IA, CRM, dashboards e integracao de plataformas.
+- Serve pequenas e medias empresas que querem operar de forma mais eficiente.
+- Abordagem personalizada: diagnostico → estrategia → implementacao → acompanhamento.
+- Primeiro resultado tipicamente em 48 horas apos inicio do projeto.
+
+Para agendar: diz ao utilizador para clicar no botao "Agendar Reuniao" que aparece no site, ou pede os dados para agendar no chat.
+
+Nunca inventes precos ou promessas especificas. Se nao souberes, diz que um especialista pode responder melhor numa chamada.`;
+
+  let chatHistory = [];
+  let chatOpened = false;
+
+  function openChat(initialMessage) {
+    document.getElementById('chatOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (!chatOpened) {
+      chatOpened = true;
+      setTimeout(() => {
+        appendMessage('bot', 'Ola. Sou o assistente da PrimeFlow.\n\nEstou aqui para o ajudar a perceber como a automacao pode fazer diferenca no seu negocio. Com o que posso comecar a ajuda-lo hoje?');
+        document.getElementById('quickReplies').style.display = 'flex';
+      }, 400);
+    }
+    if (initialMessage) {
+      setTimeout(() => {
+        document.getElementById('quickReplies').style.display = 'none';
+        sendMessageText(initialMessage);
+      }, 900);
+    }
+    setTimeout(() => {
+      document.getElementById('chatInput').focus();
+    }, 500);
+  }
+
+  function closeChat() {
+    document.getElementById('chatOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function appendMessage(role, text) {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg msg-' + role;
+    const now = new Date();
+    const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+    div.innerHTML = `<div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div><div class="msg-time">${time}</div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function showTyping() {
+    const t = document.getElementById('typingIndicator');
+    t.classList.add('active');
+    document.getElementById('chatMessages').scrollTop = 99999;
+  }
+  function hideTyping() {
+    document.getElementById('typingIndicator').classList.remove('active');
+  }
+
+  async function sendMessageText(text) {
+    chatHistory.push({ role: 'user', content: text });
+    appendMessage('user', text);
+    showTyping();
+
+    try {
+      const res = await fetch('https://primeflow-chat-server.onrender.com/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: chatHistory, system: SYSTEM })
+      });
+      const data = await res.json();
+      hideTyping();
+      const reply = data.reply || (data.error && data.error.message) || 'Ocorreu um erro. Tente novamente.';
+      chatHistory.push({ role: 'assistant', content: reply });
+      appendMessage('bot', reply);
+
+      // Show booking button if reply hints at scheduling
+      if (reply.toLowerCase().includes('agendar') || reply.toLowerCase().includes('reuniao') || reply.toLowerCase().includes('chamada')) {
+        setTimeout(() => {
+          const container = document.getElementById('chatMessages');
+          const btn = document.createElement('div');
+          btn.style.cssText = 'align-self:flex-start; margin-top: 4px;';
+          btn.innerHTML = `<button onclick="openBooking()" style="background: linear-gradient(135deg, #1e5fcc, #38bdf8); border: none; color: #fff; font-family: DM Sans, sans-serif; font-size: 0.8rem; font-weight: 500; padding: 9px 18px; border-radius: 8px; cursor: pointer; letter-spacing: 0.02em;">Agendar Reuniao</button>`;
+          container.appendChild(btn);
+          container.scrollTop = container.scrollHeight;
+        }, 300);
+      }
+    } catch(err) {
+      hideTyping();
+      appendMessage('bot', 'Estou com dificuldades em responder neste momento. Por favor, tente novamente em breve.');
+    }
+  }
+
+  function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    document.getElementById('quickReplies').style.display = 'none';
+    input.value = '';
+    input.style.height = 'auto';
+    sendMessageText(text);
+  }
+
+  function sendQuickReply(text) {
+    document.getElementById('quickReplies').style.display = 'none';
+    sendMessageText(text);
+  }
+
+  function chatKeyDown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  // Hero input
+  function heroInputSend(e) {
+    if (e.key === 'Enter') heroInputSubmit();
+  }
+  function heroInputSubmit() {
+    const val = document.getElementById('heroInput').value.trim();
+    openChat(val || null);
+    document.getElementById('heroInput').value = '';
+  }
+
+  // ─── BOOKING ───
+  function openBooking() {
+    closeChat();
+    document.getElementById('bookingOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeBooking() {
+    document.getElementById('bookingOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  const SUPABASE_URL = 'https://cyijjbkcyzjkmdpqwxji.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_CypfDQct-pEl2IHrt-odNw_qnt5EiGe';
+  const RESEND_URL = 'https://primeflow-chat-server.onrender.com/send-email'; // proxy endpoint
+
+  async function submitBooking() {
+    const name = document.getElementById('bookName').value.trim();
+    const company = document.getElementById('bookCompany').value.trim();
+    const email = document.getElementById('bookEmail').value.trim();
+    const phone = document.getElementById('bookPhone').value.trim();
+    const date = document.getElementById('bookDate').value;
+    const time = document.getElementById('bookTime').value;
+    const message = document.getElementById('bookMessage').value.trim();
+
+    if (!name || !email || !date || !time) {
+      alert('Por favor, preencha pelo menos: Nome, Email, Data e Hora.');
+      return;
+    }
+
+    const btn = document.querySelector('.form-submit');
+    btn.textContent = 'A enviar...';
+    btn.style.opacity = '0.7';
+
+    try {
+      // Save to Supabase
+      await fetch(`${SUPABASE_URL}/rest/v1/bookings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ name, company, email, phone, preferred_date: date, preferred_time: time, message, status: 'pending', created_at: new Date().toISOString() })
+      });
+    } catch(e) { /* Supabase error non-blocking */ }
+
+    // Show success regardless
+    document.getElementById('bookingForm').style.display = 'none';
+    document.getElementById('formSuccess').classList.add('show');
+  }
+</script>
+</body>
+</html>
